@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Historia de la Computación</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --card: #13131f;
+    --accent1: #ff6b35;
+    --accent2: #00d4ff;
+    --accent3: #ffd700;
+    --accent4: #b44fff;
+    --text: #f0eee8;
+    --muted: #888;
+    --line: #2a2a3e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  header {
+    text-align: center;
+    padding: 60px 20px 30px;
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: var(--accent1);
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 6px 18px;
+    border-radius: 2px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,107,53,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(255,107,53,0); }
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent3) 0%, var(--accent1) 50%, var(--accent4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 30px 20px;
+    flex-wrap: wrap;
+  }
+
+  .stat { text-align: center; animation: fadeUp 0.6s ease both; }
+
+  .stat-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .timeline-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 20px 20px 80px;
+    position: relative;
+  }
+
+  .timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, transparent, var(--accent2) 5%, var(--accent4) 50%, var(--accent1) 95%, transparent);
+    transform: translateX(-50%);
+  }
+
+  .tl-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 50px;
+    position: relative;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .tl-item:nth-child(even) { flex-direction: row-reverse; }
+  .tl-item .card-wrap { width: 45%; padding: 0 30px; }
+  .tl-item:nth-child(even) .card-wrap { padding: 0 30px; }
+
+  .tl-dot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 3px solid var(--accent2);
+    z-index: 2;
+    transition: all 0.3s ease;
+    top: 20px;
+  }
+
+  .tl-item:nth-child(3n+1) .tl-dot { border-color: var(--accent1); }
+  .tl-item:nth-child(3n+2) .tl-dot { border-color: var(--accent2); }
+  .tl-item:nth-child(3n+3) .tl-dot { border-color: var(--accent3); }
+  .tl-item:hover .tl-dot { transform: translateX(-50%) scale(1.5); box-shadow: 0 0 20px currentColor; }
+
+  /* CARD */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 60%, rgba(255,255,255,0.03));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .card:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--accent2);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5), 0 0 30px rgba(0,212,255,0.1);
+  }
+
+  /* =============================================================
+     🖼️  IMAGEN DE LA TARJETA (línea de tiempo)
+     Para cambiarla: busca en el JS  "// 📸 IMAGEN X"
+     y edita el valor de  image: "..."
+     ============================================================= */
+  .card-img-wrap {
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    height: 210px;
+    background: #1a1a2e;
+  }
+
+  .card-img {
+    width: 100%;
+    height: 210px;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+    transition: transform 0.45s ease;
+  }
+
+  .card:hover .card-img { transform: scale(1.08); }
+
+  .card-body { padding: 16px 20px 20px; }
+
+  .card-year {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .tl-item:nth-child(3n+1) .card-year { color: var(--accent1); }
+  .tl-item:nth-child(3n+2) .card-year { color: var(--accent2); }
+  .tl-item:nth-child(3n+3) .card-year { color: var(--accent3); }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .card-teaser { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  .card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    padding: 6px 12px;
+    border: 1px solid var(--accent2);
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .card:hover .card-cta { background: var(--accent2); color: var(--bg); }
+
+  /* OVERLAY / MODAL */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .overlay.active { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    max-width: 650px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.8) translateY(30px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent2) transparent;
+  }
+
+  .overlay.active .modal { transform: scale(1) translateY(0); }
+
+  /* =============================================================
+     🖼️  IMAGEN DEL MODAL (banner grande al hacer clic)
+     Misma fuente que la tarjeta — se controla desde  image: "..."
+     en el array data[] del JavaScript
+     ============================================================= */
+  .modal-img-wrap {
+    overflow: hidden;
+    border-radius: 20px 20px 0 0;
+    height: 320px;
+    position: relative;
+    background: #1a1a2e;
+  }
+
+  .modal-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+  }
+
+  .modal-img-fade {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 90px;
+    background: linear-gradient(to bottom, transparent, var(--card));
+  }
+
+  .modal-accent-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 20px 20px 0 0;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent4));
+    z-index: 5;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.65);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+
+  .close-btn:hover { background: var(--accent1); border-color: var(--accent1); transform: rotate(90deg); }
+
+  .modal-header {
+    padding: 18px 28px 18px;
+    position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .modal-year {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent2);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.85rem;
+    font-weight: 900;
+    line-height: 1.1;
+  }
+
+  .modal-creator {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .modal-body { padding: 22px 28px 28px; }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+
+  .spec-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .spec-card:hover { border-color: var(--accent2); }
+  .spec-icon { font-size: 1.2rem; margin-bottom: 5px; }
+  .spec-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 3px;
+  }
+  .spec-value { font-size: 12px; font-weight: 500; line-height: 1.4; }
+
+  .modal-description {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #bbb;
+    margin-bottom: 20px;
+    border-left: 3px solid var(--accent1);
+    padding-left: 16px;
+  }
+
+  .fun-fact {
+    background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(180,79,255,0.1));
+    border: 1px solid rgba(255,107,53,0.3);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 20px;
+  }
+
+  .fun-fact-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .components-section { margin-top: 20px; }
+  .components-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .component-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--accent2);
+    transition: all 0.2s;
+  }
+  .tag:hover { background: rgba(0,212,255,0.2); }
+
+  footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--line);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+  }
+  footer span { color: var(--accent1); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .tl-item:nth-child(1)  { animation-delay: 0.05s; }
+  .tl-item:nth-child(2)  { animation-delay: 0.10s; }
+  .tl-item:nth-child(3)  { animation-delay: 0.15s; }
+  .tl-item:nth-child(4)  { animation-delay: 0.20s; }
+  .tl-item:nth-child(5)  { animation-delay: 0.25s; }
+  .tl-item:nth-child(6)  { animation-delay: 0.30s; }
+  .tl-item:nth-child(7)  { animation-delay: 0.35s; }
+  .tl-item:nth-child(8)  { animation-delay: 0.40s; }
+  .tl-item:nth-child(9)  { animation-delay: 0.45s; }
+  .tl-item:nth-child(10) { animation-delay: 0.50s; }
+  .tl-item:nth-child(11) { animation-delay: 0.55s; }
+  .tl-item:nth-child(12) { animation-delay: 0.60s; }
+  .tl-item:nth-child(13) { animation-delay: 0.65s; }
+
+  @media (max-width: 700px) {
+    .timeline-container::before { left: 20px; }
+    .tl-item, .tl-item:nth-child(even) { flex-direction: column; padding-left: 50px; }
+    .tl-item .card-wrap, .tl-item:nth-child(even) .card-wrap { width: 100%; padding: 0; }
+    .tl-dot { left: 20px; }
+    .specs-grid { grid-template-columns: 1fr; }
+    .modal-title { font-size: 1.4rem; }
+    .modal-img-wrap { height: 170px; }
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--accent2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">⚡ Infografía Interactiva</div>
+  <h1>Del Vapor a la Pantalla</h1>
+  <p class="subtitle">1837 — 1984 · Historia de la Computación · Haz clic en cada invento</p>
+   <p class="subtitle">By: Jacob Velasco y Alfredo Ibarbo</p>
+</header>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-num">13</div><div class="stat-label">Inventos clave</div></div>
+  <div class="stat"><div class="stat-num">147</div><div class="stat-label">Años de historia</div></div>
+  <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Impacto en el mundo</div></div>
+</div>
+
+<div class="timeline-container" id="timeline"></div>
+
+<!-- Modal -->
+<div class="overlay" id="overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-accent-bar"></div>
+    <button class="close-btn" onclick="closeModal()">✕</button>
+
+    <!-- Imagen grande del modal — viene de data[i].image -->
+    <div class="modal-img-wrap">
+      <img id="m-image" class="modal-img" src="" alt="">
+      <div class="modal-img-fade"></div>
+    </div>
+
+    <div class="modal-header">
+      <div class="modal-year"  id="m-year"></div>
+      <h2 class="modal-title" id="m-title"></h2>
+      <div class="modal-creator" id="m-creator"></div>
+    </div>
+
+    <div class="modal-body">
+      <p class="modal-description" id="m-desc"></p>
+      <div class="specs-grid" id="m-specs"></div>
+      <div class="components-section">
+        <div class="components-title">🔩 Componentes principales</div>
+        <div class="component-tags" id="m-components"></div>
+      </div>
+      <div class="fun-fact">
+        <div class="fun-fact-label">💡 Dato curioso</div>
+        <span id="m-funfact-text"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>INFOGRAFÍA CREADA CON <span>♥</span> · HISTORIA DE LA COMPUTACIÓN · CLICK PARA EXPLORAR</footer>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  📸  GUÍA RÁPIDA PARA CAMBIAR LAS IMÁGENES                 ║
+// ║                                                              ║
+// ║  Cada invento tiene:   image: "URL o ruta"                  ║
+// ║                                                              ║
+// ║  Opción A — imagen tuya (carpeta local):                    ║
+// ║    image: "images/maquina-analitica.jpg"                    ║
+// ║                                                              ║
+// ║  Opción B — URL de internet:                                ║
+// ║    image: "https://upload.wikimedia.org/..."                ║
+// ║                                                              ║
+// ║  La misma imagen se usa en:                                  ║
+// ║    · La TARJETA de la línea de tiempo  (145 px alto)        ║
+// ║    · El BANNER del modal               (230 px alto)        ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const data = [
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 1 · Máquina Analítica — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1837",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/AnalyticalMachine_Babbage_London.jpg/640px-AnalyticalMachine_Babbage_London.jpg",
+    title: "Máquina Analítica",
+    creator: "Charles Babbage",
+    teaser: "La primera computadora mecánica jamás concebida",
+    desc: "Charles Babbage diseñó la Máquina Analítica como el primer dispositivo mecánico de propósito general capaz de realizar cualquier cálculo matemático. Aunque nunca se completó del todo en vida de su creador, sentó las bases conceptuales de toda la computación moderna: tenía unidad de control, memoria y procesamiento.",
+    specs: [
+      { icon:"📐", label:"Dimensiones",  value:"Estimada: 3 m largo × 2 m alto" },
+      { icon:"⚖️", label:"Peso",         value:"Varios cientos de kg (mecánica)" },
+      { icon:"🧮", label:"Procesador",   value:"Engranajes mecánicos de vapor" },
+      { icon:"💾", label:"Memoria",      value:"Tarjetas perforadas (miles de dígitos)" },
+      { icon:"🌍", label:"Origen",       value:"Londres, Inglaterra" },
+      { icon:"⚡", label:"Velocidad",    value:"~7 sumas por minuto (estimado)" },
+    ],
+    components: ["Ruedas dentadas","Cilindros de metal","Tarjetas perforadas","Eje de levas","Impresora mecánica","Motor de vapor"],
+    funfact: "Babbage se inspiró en los telares de Jacquard, que usaban tarjetas perforadas para crear patrones de tela. ¡La tecnología textil influyó directamente en la computación!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 2 · Ada Lovelace — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1842",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Ada_Lovelace_portrait.jpg/640px-Ada_Lovelace_portrait.jpg",
+    title: "Ada Lovelace",
+    creator: "Ada Lovelace (Augusta Ada King)",
+    teaser: "La primera programadora de la historia",
+    desc: "Ada Lovelace, hija del poeta Lord Byron, tradujo y amplió un artículo sobre la Máquina Analítica de Babbage. En sus notas escribió el primer algoritmo destinado a ser procesado por una máquina, convirtiéndose en la primera programadora de la historia. También vislumbró que las máquinas podrían ir mucho más allá de los cálculos numéricos.",
+    specs: [
+      { icon:"📜", label:"Obra",        value:"Notas sobre la Máquina Analítica" },
+      { icon:"🧠", label:"Aporte",      value:"Primer algoritmo de la historia" },
+      { icon:"🌍", label:"Origen",      value:"Londres, Inglaterra" },
+      { icon:"📅", label:"Publicación", value:"Revista 'Scientific Memoirs', 1843" },
+      { icon:"🔢", label:"Algoritmo",   value:"Cálculo de Números de Bernoulli" },
+      { icon:"🎓", label:"Legado",      value:"El lenguaje ADA (1980) lleva su nombre" },
+    ],
+    components: ["Notas A-G","Algoritmo iterativo","Bucles condicionales","Subrutinas","Aritmética simbólica"],
+    funfact: "Ada predijo que las máquinas algún día podrían componer música, aunque en su época nadie le creyó del todo. ¡Tenía razón 180 años después!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 3 · Máquina Tabuladora — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1890",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRdb4xK2HVNb_FEk-1HO1eBd3tr5zMOkbod5w&s",
+    title: "Máquina Tabuladora",
+    creator: "Herman Hollerith",
+    teaser: "Contó 65 millones de americanos en solo 6 semanas",
+    desc: "Hollerith inventó la máquina tabuladora eléctrica para procesar el Censo de EE.UU. de 1890. Lo que habría tardado 10 años de manera manual se completó en solo 6 semanas. Su empresa eventualmente se convertiría en IBM. Usaba tarjetas perforadas para almacenar datos de forma estandarizada.",
+    specs: [
+      { icon:"📐", label:"Dimensiones", value:"~1.8 m alto × 1.2 m ancho" },
+      { icon:"⚖️", label:"Peso",        value:"~300 kg" },
+      { icon:"🧮", label:"Procesador",  value:"Relés electromagnéticos" },
+      { icon:"💾", label:"Memoria",     value:"Tarjetas perforadas (80 columnas)" },
+      { icon:"🌍", label:"Origen",      value:"Washington D.C., EE.UU." },
+      { icon:"⚡", label:"Velocidad",   value:"~50-80 tarjetas por minuto" },
+    ],
+    components: ["Relés electromagnéticos","Lector de tarjetas","Panel de conexiones","Contadores analógicos","Tarjetas perforadas","Motor eléctrico"],
+    funfact: "La empresa de Hollerith, Tabulating Machine Company, se fusionó con otras en 1911 y en 1924 pasó a llamarse International Business Machines: ¡IBM!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 4 · Máquina de Turing — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1936",
+    image: "https://lavidamoderna.cl/wp-content/uploads/2024/12/alan-turing-genious-enigma-code-1024x589.webp",
+    title: "Máquina de Turing",
+    creator: "Alan Turing",
+    teaser: "El modelo teórico que define qué puede computarse",
+    desc: "Alan Turing publicó 'On Computable Numbers', describiendo una máquina teórica capaz de simular cualquier algoritmo matemático. Nunca fue un dispositivo físico real, sino un modelo conceptual. Sin embargo, esta idea abstracta sentó las bases de toda la teoría computacional moderna y aún hoy define los límites de lo que es computable.",
+    specs: [
+      { icon:"📐", label:"Tipo",         value:"Modelo matemático abstracto" },
+      { icon:"⚖️", label:"Partes",       value:"Cinta infinita + cabezal + tabla de estados" },
+      { icon:"🧮", label:"Operación",    value:"Leer, escribir, mover, cambiar estado" },
+      { icon:"💾", label:"Memoria",      value:"Cinta teóricamente infinita" },
+      { icon:"🌍", label:"Origen",       value:"Cambridge, Inglaterra" },
+      { icon:"📖", label:"Publicación",  value:"Proceedings of the London Math. Society" },
+    ],
+    components: ["Cinta infinita","Cabezal lector/escritor","Tabla de transición de estados","Símbolo en blanco","Conjunto de estados finitos"],
+    funfact: "Turing también inventó el 'Test de Turing' para determinar si una máquina puede pensar como humano. ¡Sigue siendo relevante con la IA actual!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 5 · Z3 — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1941",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Z3_Deutsches_Museum.JPG/640px-Z3_Deutsches_Museum.JPG",
+    title: "Z3",
+    creator: "Konrad Zuse",
+    teaser: "La primera computadora programable y funcional del mundo",
+    desc: "Desarrollada en Berlín durante la Segunda Guerra Mundial por el ingeniero alemán Konrad Zuse, la Z3 fue la primera computadora electromecánica completamente programable y funcional del mundo. Usaba relés telefónicos en lugar de válvulas de vacío. Zuse la financió en parte con dinero propio y recursos familiares.",
+    specs: [
+      { icon:"📐", label:"Dimensiones", value:"~3 m largo × 1.8 m alto" },
+      { icon:"⚖️", label:"Peso",        value:"~1,000 kg" },
+      { icon:"🧮", label:"Procesador",  value:"2,600 relés electromagnéticos" },
+      { icon:"💾", label:"Memoria",     value:"64 palabras de 22 bits (relés)" },
+      { icon:"🌍", label:"Origen",      value:"Berlín, Alemania" },
+      { icon:"⚡", label:"Velocidad",   value:"~5-10 operaciones por segundo" },
+    ],
+    components: ["2,600 relés telefónicos","Cinta de película perforada","ALU de punto flotante","Unidad de control","Teclado de entrada"],
+    funfact: "La Z3 fue destruida en un bombardeo aliado en 1943. Una réplica funcional fue construida en 1960 y se exhibe en el Deutsches Museum de Múnich."
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 6 · Atanasoff-Berry Computer — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1942",
+    image: "https://www.alegsa.com.ar/Imagen/thumb600/abc.webp",
+    title: "Atanasoff-Berry Computer",
+    creator: "John Atanasoff & Clifford Berry",
+    teaser: "La primera computadora electrónica digital",
+    desc: "La ABC fue la primera computadora que usó circuitos electrónicos digitales para realizar cálculos. Atanasoff tuvo la idea en un viaje de coche en invierno, bebiendo whisky en un bar de Illinois. Aunque no era programable, fue pionera en el uso de aritmética binaria y condensadores para almacenamiento.",
+    specs: [
+      { icon:"📐", label:"Dimensiones", value:"~1.5 m largo × 0.9 m alto" },
+      { icon:"⚖️", label:"Peso",        value:"~320 kg" },
+      { icon:"🧮", label:"Procesador",  value:"300 válvulas de vacío" },
+      { icon:"💾", label:"Memoria",     value:"60 condensadores (30 números de 50 bits)" },
+      { icon:"🌍", label:"Origen",      value:"Iowa State College, Iowa, EE.UU." },
+      { icon:"⚡", label:"Velocidad",   value:"~30 operaciones aritméticas/segundo" },
+    ],
+    components: ["300 tubos de vacío","60 condensadores","Tarjetas perforadas","Relés electromecánicos","Tambor giratorio","Circuitos binarios"],
+    funfact: "Atanasoff describió los principios de su computadora a John Mauchly en 1941. Mauchly luego diseñó la ENIAC. ¡Esto generó una disputa legal épica por la 'primera computadora'!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 7 · ENIAC — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1945",
+    image: "https://tecnologia-informatica.com/wp-content/uploads/2022/05/computadora-eniac.jpg",
+    title: "ENIAC",
+    creator: "John Mauchly & J. Presper Eckert",
+    teaser: "El gigante de 30 toneladas que calculaba trayectorias de artillería",
+    desc: "Electronic Numerical Integrator and Computer fue la primera computadora electrónica de propósito general y de gran escala. Construida para calcular tablas de tiro de artillería para el ejército de EE.UU., ocupaba un edificio completo. Requería reprogramarse físicamente cambiando cables. Las primeras 'programadoras' fueron seis mujeres matemáticas.",
+    specs: [
+      { icon:"📐", label:"Dimensiones", value:"24 m largo × 2.5 m alto" },
+      { icon:"⚖️", label:"Peso",        value:"27,000 kg (27 toneladas)" },
+      { icon:"🧮", label:"Procesador",  value:"17,468 tubos de vacío" },
+      { icon:"💾", label:"Memoria",     value:"20 acumuladores de 10 dígitos decimales" },
+      { icon:"🌍", label:"Origen",      value:"Filadelfia, Pensilvania, EE.UU." },
+      { icon:"⚡", label:"Velocidad",   value:"5,000 sumas/seg · 357 multiplicaciones/seg" },
+    ],
+    components: ["17,468 tubos de vacío","7,200 diodos de cristal","1,500 relés","70,000 resistencias","10,000 condensadores","6,000 interruptores"],
+    funfact: "La ENIAC consumía 150,000 vatios. Según la leyenda urbana, cuando se encendía las luces de Filadelfia parpadeaban. ¡El mito persiste aunque fue desmentido!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 8 · Transistor — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1947",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Replica-of-first-transistor.jpg/640px-Replica-of-first-transistor.jpg",
+    title: "Transistor",
+    creator: "William Shockley, John Bardeen & Walter Brattain",
+    teaser: "El invento más importante del siglo XX",
+    desc: "Desarrollado en los Laboratorios Bell, el transistor reemplazó los enormes y calientes tubos de vacío. Era pequeño, confiable y eficiente. Este diminuto dispositivo semiconductor es el bloque fundamental de toda la electrónica moderna: está en cada chip, cada teléfono, cada computadora. Hoy hay más transistores en el mundo que granos de arena en todas las playas.",
+    specs: [
+      { icon:"📐", label:"Dimensiones", value:"~1 cm × 1 cm (primer prototipo)" },
+      { icon:"⚖️", label:"Peso",        value:"Menos de 1 gramo" },
+      { icon:"🧮", label:"Material",    value:"Germanio semiconductor cristálico" },
+      { icon:"💾", label:"Función",     value:"Amplificar y conmutar señales eléctricas" },
+      { icon:"🌍", label:"Origen",      value:"Murray Hill, Nueva Jersey, EE.UU." },
+      { icon:"🏆", label:"Nobel",       value:"Física 1956 para sus tres inventores" },
+    ],
+    components: ["Germanio (luego Silicio)","Tres terminales (Base, Colector, Emisor)","Uniones P-N semiconductoras","Contactos metálicos de punta fina"],
+    funfact: "Un chip moderno contiene más de 100 mil millones de transistores en un área del tamaño de tu uña. ¡El primer transistor cabría en 10 millones de chips actuales!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 9 · Circuito Integrado — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1958",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU-_-TOC8G70gmPzpkQhzXPKxvZRl2RCnAMw&s",
+    title: "Circuito Integrado",
+    creator: "Jack Kilby (Texas Instruments) & Robert Noyce (Fairchild)",
+    teaser: "Meter un radio completo en un chip del tamaño de un sello postal",
+    desc: "Jack Kilby demostró que múltiples componentes electrónicos podían fabricarse en una sola placa de germanio. Meses después, Robert Noyce hizo algo similar con silicio. Juntos inventaron el circuito integrado, lo que permitió miniaturizar la electrónica de forma exponencial y sentar las bases de todos los chips modernos.",
+    specs: [
+      { icon:"📐", label:"Dimensiones",  value:"~1.6 cm × 1.1 cm (prototipo Kilby)" },
+      { icon:"⚖️", label:"Peso",         value:"Menos de 0.5 gramos" },
+      { icon:"🧮", label:"Componentes",  value:"5 transistores + resistencias en 1 chip" },
+      { icon:"💾", label:"Material",     value:"Germanio (Kilby) / Silicio (Noyce)" },
+      { icon:"🌍", label:"Origen",       value:"Texas, EE.UU. / California, EE.UU." },
+      { icon:"🏆", label:"Nobel",        value:"Jack Kilby recibió el Nobel en el 2000" },
+    ],
+    components: ["Sustrato de Germanio/Silicio","Transistores miniaturizados","Resistencias integradas","Condensadores en chip","Interconexiones de aluminio"],
+    funfact: "Kilby concibió la idea cuando era nuevo en Texas Instruments y todos sus colegas estaban de vacaciones. ¡La soledad fue la madre de la invención!"
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 10 · Sketchpad — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1963",
+    image: "https://computerhistory.org/wp-content/uploads/2023/01/P91-211-1024x813.jpg",
+    title: "Sketchpad",
+    creator: "Ivan Sutherland — MIT",
+    teaser: "El primer sistema CAD de la historia y cuna de las interfaces gráficas",
+    desc: "Desarrollado como tesis doctoral en el MIT, Sketchpad fue el primer sistema de diseño asistido por computadora (CAD) de la historia. Funcionaba en la computadora TX-2, que ocupaba una sala entera. Introdujo por primera vez los gráficos interactivos en pantalla, sentando las bases de lo que hoy usan millones de personas en diseño, arquitectura e ingeniería.",
+    specs: [
+      { icon:"📐", label:"Hardware",     value:"TX-2, MIT Lincoln Laboratory" },
+      { icon:"⚖️", label:"Peso equipo",  value:"~270 kg (TX-2 era enorme)" },
+      { icon:"🧮", label:"Procesador",   value:"TX-2: transistores de germanio" },
+      { icon:"💾", label:"Memoria",      value:"64K palabras de 36 bits (~64 KB)" },
+      { icon:"🌍", label:"Origen",       value:"MIT, Cambridge, Massachusetts, EE.UU." },
+      { icon:"⚡", label:"Display",      value:"Monitor CRT de 9 pulgadas" },
+    ],
+    components: ["Lápiz óptico (light pen)","Monitor CRT","TX-2 mainframe","Sistema de objetos gráficos","Sistema de restricciones geométricas","Software de copia y modificación de figuras"],
+    funfact: "Sketchpad no solo fue el primer programa de dibujo digital; también introdujo ideas que más tarde se convertirían en la base de la programación orientada a objetos y las interfaces gráficas modernas."
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 11 · El Mouse — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1964",
+    image: "https://png.pngtree.com/png-vector/20240627/ourlarge/pngtree-3d-buy-microsoft-comfort-mouse-cartoon-little-png-image_12893143.png",
+    title: "El Mouse",
+    creator: "Douglas Engelbart — Stanford Research Institute",
+    teaser: "El pequeño bloque de madera que revolucionó cómo interactuamos con las computadoras",
+    desc: "Douglas Engelbart inventó el ratón buscando una forma más sencilla de interactuar con las computadoras, que en esa época solo se manejaban con comandos de teclado. El primer prototipo era de madera con dos ruedas metálicas internas. Fue presentado públicamente en 1968 en la llamada 'Mother of All Demos'. No se popularizó hasta los años 80 con las primeras computadoras personales.",
+    specs: [
+      { icon:"📐", label:"Dimensiones", value:"~10 cm × 7 cm × 4 cm" },
+      { icon:"⚖️", label:"Peso",        value:"~200 gramos" },
+      { icon:"🧮", label:"Mecanismo",   value:"2 ruedas ortogonales de metal" },
+      { icon:"💾", label:"Botones",     value:"1 botón superior de selección" },
+      { icon:"🌍", label:"Origen",      value:"SRI International, Menlo Park, California" },
+      { icon:"📅", label:"Patente",     value:"1970 · US3541541A (X-Y Position Indicator)" },
+    ],
+    components: ["Carcasa de madera","2 ruedas metálicas internas (X e Y)","1 botón de presión superior","Cable de conexión (la 'cola')","Circuito de señal de posición"],
+    funfact: "Engelbart patentó su invento como 'X-Y Position Indicator for a Display System', pero nunca ganó mucho dinero con él. Su patente expiró justo antes de que el mouse explotara en popularidad gracias al Macintosh."
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 12 · Xerox Star — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1981",
+    image: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhB6UsuJ9hg5T2S8WhS6y0kpxZ5lGqmhiXI08RDxiBGQ5960zw1f2kIFdJ3ORdSlOh1cjDUN2Dv7H70FlmJ6k4EWxE4o69pYclW9aNfoKFMaY937ooqNd753hSsCEBpGz6Cg21xtiEMaFc/s1600/04-27+Efemerides+de+Tecnologia+xerox-star.jpg",
+    title: "Xerox Star",
+    creator: "Equipo de Xerox PARC",
+    teaser: "La primera computadora comercial con interfaz gráfica, íconos, ventanas y mouse",
+    desc: "Desarrollada por Xerox PARC, la Star 8010 fue la primera computadora comercial con interfaz gráfica de usuario (GUI): ventanas, íconos, carpetas y mouse como dispositivo principal. No fue obra de una sola persona, sino de un equipo completo de ingenieros. Aunque no tuvo éxito comercial por su alto precio, sus ideas fueron adoptadas por Apple y Microsoft, influyendo en todas las computadoras modernas.",
+    specs: [
+      { icon:"📐", label:"Dimensiones",  value:"Monitor: 61 cm × 53 cm (sistema de escritorio)" },
+      { icon:"⚖️", label:"Peso",         value:"~35 kg" },
+      { icon:"🧮", label:"Procesador",   value:"Procesador Xerox 32-bit a 4 MHz" },
+      { icon:"💾", label:"Memoria RAM",  value:"384 KB a 1.5 MB" },
+      { icon:"🌍", label:"Origen",       value:"Xerox PARC, Palo Alto, California" },
+      { icon:"💰", label:"Precio",       value:"~$16,000 USD (1981) · ~$55,000 hoy" },
+    ],
+    components: ["Monitor con GUI de íconos y ventanas","Mouse como dispositivo principal","CPU integrada en el sistema","Teclado","Sistema operativo gráfico (documentos digitales)","Red Ethernet integrada"],
+    funfact: "Aunque fue revolucionaria y adelantada a su tiempo, la Xerox Star no tuvo éxito comercial. Steve Jobs la visitó en Xerox PARC en 1979 y quedó tan impresionado que recreó muchas de sus ideas en el Lisa y el Macintosh."
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // 📸 IMAGEN 13 · Macintosh — cambia el valor de image:
+  // ─────────────────────────────────────────────────────────────
+  {
+    year: "1984",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Macintosh_128k_transparency.png/640px-Macintosh_128k_transparency.png",
+    title: "Macintosh",
+    creator: "Apple Inc. — Steve Jobs & Jef Raskin",
+    teaser: "La computadora que democratizó la interfaz gráfica para todo el mundo",
+    desc: "Lanzado el 24 de enero de 1984, el Macintosh 128K fue la primera computadora personal con interfaz gráfica de usuario que tuvo éxito masivo. El proyecto nació de Jef Raskin, quien quería una computadora económica y fácil de usar sin necesitar programación. Steve Jobs tomó el liderazgo y lo convirtió en un producto icónico. Vendió ~70,000 unidades en sus primeros meses.",
+    specs: [
+      { icon:"📐", label:"Dimensiones",  value:"34.3 cm alto × 24.4 cm ancho × 27.9 cm prof." },
+      { icon:"⚖️", label:"Peso",         value:"7.5 kg" },
+      { icon:"🧮", label:"Procesador",   value:"Motorola 68000 a 8 MHz" },
+      { icon:"💾", label:"Memoria RAM",  value:"128 KB (ampliable a 512 KB)" },
+      { icon:"🌍", label:"Origen",       value:"Cupertino, California, EE.UU." },
+      { icon:"💰", label:"Precio",       value:"$2,495 USD (1984) · ~$7,500 hoy" },
+    ],
+    components: ["Pantalla monocromática integrada 9\" (512×342 px)","Procesador Motorola 68000","128 KB de RAM","ROM de 64 KB","Disquetera de 3.5\" (400 KB)","Sistema operativo con GUI","Mouse y teclado externos"],
+    funfact: "El famoso anuncio de 1984, dirigido por Ridley Scott, comparaba a Apple rompiendo el dominio del mercado de IBM. Es considerado uno de los comerciales más influyentes en la historia de la publicidad tecnológica."
+  }
+
+];
+
+// ══════════════════════════════════════════════════════
+//  NO NECESITAS TOCAR NADA DEBAJO DE ESTA LÍNEA
+// ══════════════════════════════════════════════════════
+
+function renderTimeline() {
+  const tl = document.getElementById('timeline');
+  data.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'tl-item';
+    div.innerHTML = `
+      <div class="card-wrap">
+        <div class="card" onclick="openModal(${i})">
+          <div class="card-img-wrap">
+            <img class="card-img" src="${item.image}" alt="${item.title}"
+                 onerror="this.style.display='none'">
+          </div>
+          <div class="card-body">
+            <div class="card-year">— ${item.year} —</div>
+            <h3 class="card-title">${item.title}</h3>
+            <p class="card-teaser">${item.teaser}</p>
+            <span class="card-cta">▶ Ver detalles</span>
+          </div>
+        </div>
+      </div>
+      <div class="tl-dot"></div>
+      <div class="card-wrap"></div>
+    `;
+    tl.appendChild(div);
+  });
+}
+
+function openModal(i) {
+  const d = data[i];
+  document.getElementById('m-image').src   = d.image;
+  document.getElementById('m-image').alt   = d.title;
+  document.getElementById('m-year').textContent  = d.year;
+  document.getElementById('m-title').textContent = d.title;
+  document.getElementById('m-creator').innerHTML = `👤 Creado por: <strong>${d.creator}</strong>`;
+  document.getElementById('m-desc').textContent  = d.desc;
+  document.getElementById('m-funfact-text').textContent = d.funfact;
+
+  document.getElementById('m-specs').innerHTML = d.specs.map(s => `
+    <div class="spec-card">
+      <div class="spec-icon">${s.icon}</div>
+      <div class="spec-label">${s.label}</div>
+      <div class="spec-value">${s.value}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('m-components').innerHTML =
+    d.components.map(c => `<span class="tag">${c}</span>`).join('');
+
+  document.getElementById('overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('overlay') ||
+      e.target.classList.contains('close-btn')) {
+    document.getElementById('overlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal({ target: document.getElementById('overlay') });
+});
+
+renderTimeline();
+</script>
+</body>
+</html>
